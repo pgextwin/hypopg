@@ -10,7 +10,7 @@ if ($expected -cnotmatch '^[a-f0-9]{40}$' -or $config.upstream.repository -cne '
 $actual = (& git -C $UpstreamDir rev-parse HEAD).Trim().ToLowerInvariant()
 if ($LASTEXITCODE -ne 0 -or $actual -cne $expected) { throw "Upstream commit mismatch: $actual" }
 $pgVersion = (& (Join-Path $PgRoot 'bin/pg_config.exe') --version).Trim()
-if ($LASTEXITCODE -ne 0 -or $pgVersion -notmatch '^PostgreSQL\s+(15|16|17|18)(?:\.|\s)') { throw "Unsupported PostgreSQL version: $pgVersion" }
+if ($LASTEXITCODE -ne 0 -or $pgVersion -notmatch '^PostgreSQL\s+(14|15|16|17|18)(?:\.|\s)') { throw "Unsupported PostgreSQL version: $pgVersion" }
 $control = Get-Content (Join-Path $UpstreamDir 'hypopg.control') -Raw
 if ($control -notmatch "(?m)^default_version\s*=\s*'1\.4\.3'\s*$") { throw 'Unexpected upstream SQL version' }
 $src = @('hypopg.c','hypopg_index.c','import/hypopg_import.c','import/hypopg_import_index.c')
