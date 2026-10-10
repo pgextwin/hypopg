@@ -1,7 +1,9 @@
 # HypoPG Windows x64 技術パイロット
 
-PostgreSQL 15〜18の標準Windows x64環境向けに、HypoPG 1.4.3を上流commit `21d5461ad1868434cc47d9aa656d7afc2b24c464`からビルドする非公式プロジェクトです。
+PostgreSQL 14〜18の標準Windows x64環境向けに、HypoPG 1.4.3を上流commit `21d5461ad1868434cc47d9aa656d7afc2b24c464`からビルドする非公式プロジェクトです。
 
 仮想インデックスの作成、EXPLAINによる利用確認、物理インデックスが存在しないことの確認、resetによる元の実行計画への復帰を機能試験で検証します。
 
-**未検証の実装候補です。** PostgreSQL 15〜18のWindows CIと成果物検証を通過するまで、正式なReleaseやCatalog登録は行いません。
+**未検証の実装候補です。** PostgreSQL 14〜18のWindows CIと成果物検証を通過するまで、正式なReleaseやCatalog登録は行いません。
+
+PostgreSQL 14の公式サポート終了日は2026年11月12日です。終了後は共通CIのバージョン判定によりPG14の新規ビルド対象から自動除外します（過去の公開成果物は履歴として残ります）。
