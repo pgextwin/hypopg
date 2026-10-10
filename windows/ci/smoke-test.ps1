@@ -4,7 +4,7 @@ param([Parameter(Mandatory=$true)][string]$PgRoot,
       [Parameter(Mandatory=$true)][int]$PostgreSqlMajor)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-if ($PostgreSqlMajor -notin @(15,16,17,18)) { throw 'Only PG15-18 are allowed in this pilot' }
+if ($PostgreSqlMajor -notin @(14,15,16,17,18)) { throw 'Only PG14-18 are allowed' }
 $bin = Join-Path $PgRoot 'bin'
 $version = (& (Join-Path $bin 'pg_config.exe') --version).Trim()
 if ($LASTEXITCODE -ne 0 -or $version -notmatch ('^PostgreSQL\s+' + $PostgreSqlMajor + '(?:\.|\s)')) {
