@@ -37,12 +37,13 @@ if ($sql.Name -cnotcontains 'hypopg--1.4.3.sql') { throw 'Missing SQL install fi
 foreach ($f in $sql) { Copy-Item $f.FullName (Join-Path $stage 'share/extension') -Force }
 $info = @"
 HypoPG Windows x64 (unofficial pgextwin pilot)
-Upstream: $UpstreamRepository
-Ref: $UpstreamRef
-SHA: $sha
+Upstream repository: $UpstreamRepository
+Upstream ref: $UpstreamRef
+Upstream commit: $sha
 Version: $UpstreamVersion
 PostgreSQL major: $PostgreSqlMajor
-PostgreSQL minor tested: $PostgreSqlMinor
+PostgreSQL tested: $PostgreSqlMinor
+Architecture: Windows x64
 License: PostgreSQL; see LICENSE
 Install by copying lib/hypopg.dll and share/extension files to the respective PostgreSQL directories.
 Then run CREATE EXTENSION hypopg. This is not an official HypoPG release.
