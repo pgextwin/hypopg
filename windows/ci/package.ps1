@@ -10,7 +10,7 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $config = Get-Content (Join-Path $PSScriptRoot '../../config/extension.json') -Raw | ConvertFrom-Json
 if ($UpstreamRepository -cne [string]$config.upstream.repository -or $UpstreamRef -cne [string]$config.upstream.ref -or
-    $UpstreamVersion -cne [string]$config.upstream.version -or $PostgreSqlMajor -notin @(15,16,17,18) -or
+    $UpstreamVersion -cne [string]$config.upstream.version -or $PostgreSqlMajor -notin @(14,15,16,17,18) -or
     $PostgreSqlMinor -notmatch ('^'+$PostgreSqlMajor+'\.' )) { throw 'Unapproved upstream / PostgreSQL package metadata' }
 $sha = (& git -C $UpstreamDir rev-parse HEAD).Trim().ToLowerInvariant()
 if ($LASTEXITCODE -ne 0 -or $sha -cne [string]$config.upstream.commit) { throw 'Upstream SHA mismatch' }
