@@ -1,9 +1,11 @@
-# HypoPG Windows x64 技術パイロット
+# HypoPG — Windows x64 バイナリ（pgextwin）
 
-PostgreSQL 14〜18の標準Windows x64環境向けに、HypoPG 1.4.3を上流commit `21d5461ad1868434cc47d9aa656d7afc2b24c464`からビルドする非公式プロジェクトです。
+[English](README.md) | 日本語
 
-仮想インデックスの作成、EXPLAINによる利用確認、物理インデックスが存在しないことの確認、resetによる元の実行計画への復帰を機能試験で検証します。
+上流 [HypoPG](https://github.com/HypoPG/hypopg) **1.4.3**（固定コミット `21d5461ad1868434cc47d9aa656d7afc2b24c464`）を基にした、非公式のWindows x64向けコミュニティ製バイナリです。
 
-**未検証の実装候補です。** PostgreSQL 14〜18のWindows CIと成果物検証を通過するまで、正式なReleaseやCatalog登録は行いません。
+**現在の公開Release：** [v1.4.3-windows.1](https://github.com/pgextwin/hypopg/releases/tag/v1.4.3-windows.1)。PostgreSQL **14〜18**向けの各ZIPを公開しています。使用中のPGメジャーに対応するZIPを選んでください。SHA256・SPDX SBOM・Grype・ビルド証明は[pgextwin Pages](https://pgextwin.github.io/website/ja/)で確認できます。上流公式によるWindows配布ではありません。
 
-PostgreSQL 14の公式サポート終了日は2026年11月12日です。終了後は共通CIのバージョン判定によりPG14の新規ビルド対象から自動除外します（過去の公開成果物は履歴として残ります）。
+Windows CIではPostgreSQL起動、`CREATE EXTENSION hypopg`、仮想インデックスによる`EXPLAIN`の変化、物理インデックスが作成されないこと、および`hypopg_reset()`後の復帰を検証しています。**サーバーログ検証および拡張機能のアップグレードは現行の機能テスト対象外**です。導入要件と検証済み機能の詳細は[pgextwin Pages](https://pgextwin.github.io/website/ja/)を参照してください。
+
+通常の仮想インデックス機能に`shared_preload_libraries`は不要です。PostgreSQL 14の新規ビルド対象期間は公式EOLの**2026-11-12**までとし、公開済み成果物はEOL後も履歴として残します。実運用前に使用するWindows版PostgreSQLとの互換性を確認してください。
