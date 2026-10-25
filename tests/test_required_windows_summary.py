@@ -86,7 +86,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("needs: [authorize, watch_candidate]", original)
         self.assertIn("dry_run: false", original)
         self.assertIn(
-            "operator-update-auto.yml@cad131c1a767756fd8d8933d8a3c8530fd0ab9e3",
+            "operator-update-auto.yml@90755b0968520528c74e95a29207836806e543fa",
             original)
         self.assertIn("detector_sha: 16b886b9d06d6f389b369b87ce0c155767697ca0",
                       original)
@@ -112,7 +112,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("candidate_attested_build:", contents)
         self.assertIn("candidate_signed_audit:", contents)
         self.assertIn(
-            "operator-update-auto.yml@cad131c1a767756fd8d8933d8a3c8530fd0ab9e3",
+            "operator-update-auto.yml@90755b0968520528c74e95a29207836806e543fa",
             contents)
 
     def test_version_independent_windows_pipeline(self):
