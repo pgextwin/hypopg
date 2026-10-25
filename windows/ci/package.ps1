@@ -9,6 +9,9 @@ param([Parameter(Mandatory=$true)][string]$UpstreamDir,
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $config = Get-Content (Join-Path $PSScriptRoot '../../config/extension.json') -Raw | ConvertFrom-Json
+if ($UpstreamVersion -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+$' -or $UpstreamRef -cne $UpstreamVersion) {
+    throw 'Unapproved upstream version/ref'
+}
 if ($UpstreamRepository -cne [string]$config.upstream.repository -or $UpstreamRef -cne [string]$config.upstream.ref -or
     $UpstreamVersion -cne [string]$config.upstream.version -or $PostgreSqlMajor -notin @(14,15,16,17,18) -or
     $PostgreSqlMinor -notmatch ('^'+$PostgreSqlMajor+'\.' )) { throw 'Unapproved upstream / PostgreSQL package metadata' }
@@ -32,8 +35,13 @@ foreach ($src in $mapping.Keys) {
     if (-not (Test-Path $path -PathType Leaf)) { throw "Missing package input: $src" }
     Copy-Item $path (Join-Path $stage $mapping[$src]) -Force
 }
+$control = Get-Content (Join-Path $UpstreamDir 'hypopg.control') -Raw
+$escaped = [regex]::Escape($UpstreamVersion)
+if ($control -cnotmatch "(?m)^default_version\s*=\s*'$escaped'\s*$") {
+    throw 'Package control version does not match approved manifest'
+}
 $sql = @(Get-ChildItem $UpstreamDir -File -Filter 'hypopg--*.sql')
-if ($sql.Name -cnotcontains 'hypopg--1.4.3.sql') { throw 'Missing SQL install file' }
+if ($sql.Name -cnotcontains "hypopg--$UpstreamVersion.sql") { throw 'Missing SQL install file' }
 foreach ($f in $sql) { Copy-Item $f.FullName (Join-Path $stage 'share/extension') -Force }
 $info = @"
 HypoPG Windows x64 (unofficial pgextwin pilot)
@@ -56,7 +64,7 @@ Add-Type -AssemblyName System.IO.Compression.FileSystem
 $archive = [IO.Compression.ZipFile]::OpenRead((Resolve-Path $zip).Path)
 try {
     $items = @($archive.Entries | ForEach-Object {$_.FullName.Replace('\','/')})
-    foreach ($path in @('lib/hypopg.dll','share/extension/hypopg.control','share/extension/hypopg--1.4.3.sql','LICENSE','PACKAGE-INFO.txt')) {
+    foreach ($path in @('lib/hypopg.dll','share/extension/hypopg.control',"share/extension/hypopg--$UpstreamVersion.sql",'LICENSE','PACKAGE-INFO.txt')) {
         if ($items -cnotcontains $path) { throw "Missing ZIP entry $path" }
     }
 }
