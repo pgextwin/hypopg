@@ -46,5 +46,29 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertNotIn("workflow_dispatch:", summary)
 
 
+    def test_on_demand_probe_cannot_authorize_signed_schedule(self):
+        scheduled = (ROOT / ".github" / "workflows" / "update-watch.yml").read_text()
+        probe = (ROOT / ".github" / "workflows" /
+                 "on-demand-candidate-preflight.yml").read_text()
+        self.assertIn("if: github.event_name == 'schedule'", scheduled)
+        self.assertNotIn("workflow_dispatch:", scheduled)
+        self.assertNotIn("on_demand_preflight:", scheduled)
+        self.assertIn("  workflow_dispatch:", probe)
+        self.assertIn('      - ".github/workflows/on-demand-candidate-preflight.yml"', probe)
+        self.assertIn("github.event_name == 'workflow_dispatch'", probe)
+        self.assertIn("github.event_name == 'push'", probe)
+        self.assertIn("dry_run: true", probe)
+        self.assertIn("candidate-update.yml@df9847fa265c06c8f8602a72cfb0fcde52ee46df", probe)
+        self.assertIn("contents: read", probe)
+        for prohibited in ("contents: write", "pull-requests: write",
+                           "id-token: write", "dry_run: false",
+                           "publisher-candidate-intake.yml",
+                           "build-extension-attested.yml"):
+            self.assertNotIn(prohibited, probe)
+        self.assertIn("needs: [authorize, watch_candidate]", scheduled)
+        self.assertIn("dry_run: false", scheduled)
+        self.assertNotIn("on-demand-candidate-preflight", scheduled)
+
+
 if __name__ == "__main__":
     unittest.main()

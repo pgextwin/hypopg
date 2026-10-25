@@ -1,0 +1,32 @@
+name: On-demand stable upstream preflight (nonpublishing)
+# This workflow is NOT a schedule decision. No candidate PR, signed intent,
+# Publisher, tag or Release can be authorized by this event or its artifact.
+on:
+  workflow_dispatch:
+  # A protected addition/change to this file gives one immediate real
+  # main/push acceptance without any dispatch-capable external API.
+  push:
+    branches: [main]
+    paths:
+      - ".github/workflows/on-demand-candidate-preflight.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  nonpublishing_plan:
+    name: Authenticate real upstream SHA (read only, no candidate PR)
+    if: >-
+      ${{ github.repository == 'pgextwin/hypopg' &&
+          github.ref == 'refs/heads/main' &&
+          (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
+    permissions:
+      contents: read
+    # Existing fleet-scoped candidate planner; its proposer is explicitly
+    # disabled, not changed into a non-schedule candidate authority.
+    uses: pgextwin/build/.github/workflows/candidate-update.yml@df9847fa265c06c8f8602a72cfb0fcde52ee46df
+    with:
+      extension_config_path: config/extension.json
+      update_watch_path: config/update-watch.json
+      candidate_policy_path: config/candidate-build.json
+      dry_run: true
