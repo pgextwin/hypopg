@@ -1,10 +1,7 @@
 name: On-demand stable upstream preflight (nonpublishing)
-# This workflow is NOT a schedule decision. No candidate PR, signed intent,
-# Publisher, tag or Release can be authorized by this event or its artifact.
+# Dedicated read-only probe. Not a schedule decision or signed Release source.
 on:
   workflow_dispatch:
-  # A protected addition/change to this file gives one immediate real
-  # main/push acceptance without any dispatch-capable external API.
   push:
     branches: [main]
     paths:
@@ -15,18 +12,59 @@ permissions:
 
 jobs:
   nonpublishing_plan:
-    name: Authenticate real upstream SHA (read only, no candidate PR)
+    name: Verify real stable tag and full SHA (no candidate PR)
     if: >-
       ${{ github.repository == 'pgextwin/hypopg' &&
           github.ref == 'refs/heads/main' &&
           (github.event_name == 'workflow_dispatch' || github.event_name == 'push') }}
+    runs-on: ubuntu-latest
     permissions:
       contents: read
-    # Existing fleet-scoped candidate planner; its proposer is explicitly
-    # disabled, not changed into a non-schedule candidate authority.
-    uses: pgextwin/build/.github/workflows/candidate-update.yml@df9847fa265c06c8f8602a72cfb0fcde52ee46df
-    with:
-      extension_config_path: config/extension.json
-      update_watch_path: config/update-watch.json
-      candidate_policy_path: config/candidate-build.json
-      dry_run: true
+    steps:
+      - name: Checkout exact extension source without persistent credentials
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Checkout SHA-pinned shared fleet candidate planner
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: pgextwin/build
+          ref: df9847fa265c06c8f8602a72cfb0fcde52ee46df
+          path: .pgextwin-build
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
+        with:
+          python-version: "3.13"
+      - name: Verify live central registered-fleet BUILD and local candidate-only opt-in
+        id: fleet
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python .pgextwin-build/scripts/fleet-control.py
+          --extension config/extension.json
+          --watch config/update-watch.json
+          --repository "$GITHUB_REPOSITORY"
+          --action candidate
+          --candidate-policy config/candidate-build.json
+      - name: Reject central DENY or WATCH before any candidate planning
+        env:
+          ALLOWED: ${{ steps.fleet.outputs.allowed }}
+        run: |
+          test "$ALLOWED" = 'true' || { echo 'ON_DEMAND_PREFLIGHT_DENY: central/local candidate policy'; exit 2; }
+      - name: Resolve genuine latest stable tag to immutable upstream full SHA
+        id: detect
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: >-
+          python .pgextwin-build/scripts/candidate-update.py plan
+          --extension config/extension.json
+          --watch config/update-watch.json
+          --policy config/candidate-build.json
+          --lifecycle .pgextwin-build/metadata/postgresql.json
+          --output "$RUNNER_TEMP/on-demand-candidate-plan.json"
+      - name: Upload observation only (never original scheduled decision)
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: on-demand-candidate-plan-nonpublishing
+          path: ${{ runner.temp }}/on-demand-candidate-plan.json
+          if-no-files-found: error
