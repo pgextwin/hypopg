@@ -11,8 +11,16 @@ $actual = (& git -C $UpstreamDir rev-parse HEAD).Trim().ToLowerInvariant()
 if ($LASTEXITCODE -ne 0 -or $actual -cne $expected) { throw "Upstream commit mismatch: $actual" }
 $pgVersion = (& (Join-Path $PgRoot 'bin/pg_config.exe') --version).Trim()
 if ($LASTEXITCODE -ne 0 -or $pgVersion -notmatch '^PostgreSQL\s+(14|15|16|17|18)(?:\.|\s)') { throw "Unsupported PostgreSQL version: $pgVersion" }
+$expectedVersion = [string]$config.upstream.version
+if ($expectedVersion -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+$' -or
+    [string]$config.upstream.ref -cne $expectedVersion) {
+    throw 'Invalid or mismatched pinned HypoPG version'
+}
 $control = Get-Content (Join-Path $UpstreamDir 'hypopg.control') -Raw
-if ($control -notmatch "(?m)^default_version\s*=\s*'1\.4\.3'\s*$") { throw 'Unexpected upstream SQL version' }
+$controlVersion = [regex]::Escape($expectedVersion)
+if ($control -cnotmatch "(?m)^default_version\s*=\s*'$controlVersion'\s*$") {
+    throw 'Upstream control version disagrees with immutable manifest'
+}
 $src = @('hypopg.c','hypopg_index.c','import/hypopg_import.c','import/hypopg_import_index.c')
 $functions = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
 foreach ($file in $src) {
@@ -75,4 +83,4 @@ foreach ($symbol in $exports) {
         throw "Required DLL export missing: $symbol"
     }
 }
-Write-Host "Built pinned HypoPG 1.4.3; verified $($exports.Count) DLL exports."
+Write-Host "Built pinned HypoPG $expectedVersion; verified $($exports.Count) DLL exports."
