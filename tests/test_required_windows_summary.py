@@ -76,5 +76,27 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertNotIn("on-demand-candidate-preflight", scheduled)
 
 
+    def test_version_independent_windows_pipeline(self):
+        scripts = ROOT / "windows" / "ci"
+        source = {name: (scripts / name).read_text(encoding="utf-8")
+                  for name in ("build.ps1", "install.ps1",
+                               "package.ps1", "smoke-test.ps1")}
+        for name, body in source.items():
+            with self.subTest(file=name):
+                self.assertNotIn("1.4.3", body)
+                self.assertIn("config/extension.json", body)
+                self.assertIn("upstream.version", body)
+        self.assertIn("upstream.commit", source["build.ps1"])
+        self.assertIn("[regex]::Escape($expectedVersion)", source["build.ps1"])
+        self.assertIn("[regex]::Escape($expectedVersion)", source["install.ps1"])
+        self.assertIn("[regex]::Escape($UpstreamVersion)", source["package.ps1"])
+        self.assertIn('hypopg--$expectedVersion.sql', source["install.ps1"])
+        self.assertIn('hypopg--$UpstreamVersion.sql', source["package.ps1"])
+        self.assertIn("sqlBody.Replace('@@EXPECTED_HYPOPG_VERSION@@', $expectedVersion)",
+                      source["smoke-test.ps1"])
+        for name in ("build.ps1", "install.ps1", "smoke-test.ps1"):
+            self.assertIn("'^[0-9]+\\.[0-9]+\\.[0-9]+$'", source[name])
+
+
 if __name__ == "__main__":
     unittest.main()
