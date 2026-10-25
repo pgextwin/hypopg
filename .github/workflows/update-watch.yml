@@ -5,6 +5,9 @@ name: Upstream candidate after verified central daily fleet scan
 on:
   schedule:
     - cron: "30 * * * *"
+    # Delayed central scan recovery; remains a genuine schedule event.
+    # Shares the same strict immutable central source / TTL gate.
+    - cron: "41 * * * *"
   push:
     branches: [main]
     paths:
