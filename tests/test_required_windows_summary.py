@@ -57,8 +57,14 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn('      - ".github/workflows/on-demand-candidate-preflight.yml"', probe)
         self.assertIn("github.event_name == 'workflow_dispatch'", probe)
         self.assertIn("github.event_name == 'push'", probe)
-        self.assertIn("dry_run: true", probe)
-        self.assertIn("candidate-update.yml@df9847fa265c06c8f8602a72cfb0fcde52ee46df", probe)
+        self.assertNotIn("candidate-update.py propose", probe)
+        self.assertNotIn("name: candidate-decision", probe)
+        self.assertIn("ref: df9847fa265c06c8f8602a72cfb0fcde52ee46df", probe)
+        self.assertIn("fleet-control.py", probe)
+        self.assertIn("candidate-update.py plan", probe)
+        self.assertIn("Reject central DENY", probe)
+        self.assertIn("on-demand-candidate-plan-nonpublishing", probe)
+        self.assertNotIn("candidate-update.yml@", probe)
         self.assertIn("contents: read", probe)
         for prohibited in ("contents: write", "pull-requests: write",
                            "id-token: write", "dry_run: false",
