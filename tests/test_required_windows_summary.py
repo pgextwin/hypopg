@@ -94,6 +94,27 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("candidate_signed_audit:", original)
         self.assertNotIn("pull_request_target:", original)
 
+    def test_native_candidate_audit_pin_has_independent_exact_pr_join(self):
+        path = ROOT / ".github" / "workflows" / "update-watch.yml"
+        contents = path.read_text(encoding="utf-8")
+        self.assertIn(
+            "verify-native-pr-candidate.yml@90755b0968520528c74e95a29207836806e543fa",
+            contents)
+        self.assertNotIn(
+            "verify-native-pr-candidate.yml@2b2903e463d28891b5688bf4546da99a299c3684",
+            contents)
+        self.assertIn("github.event.workflow_run.event == 'pull_request'", contents)
+        self.assertIn("github.event.workflow_run.conclusion == 'success'", contents)
+        self.assertIn("startsWith(github.event.workflow_run.head_branch, 'auto-candidate/')",
+                      contents)
+        self.assertIn("if: github.event_name == 'schedule'", contents)
+        self.assertIn("candidate_main_merge_observation:", contents)
+        self.assertIn("candidate_attested_build:", contents)
+        self.assertIn("candidate_signed_audit:", contents)
+        self.assertIn(
+            "operator-update-auto.yml@cad131c1a767756fd8d8933d8a3c8530fd0ab9e3",
+            contents)
+
     def test_version_independent_windows_pipeline(self):
         scripts = ROOT / "windows" / "ci"
         source = {name: (scripts / name).read_text(encoding="utf-8")
