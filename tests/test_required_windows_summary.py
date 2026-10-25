@@ -76,6 +76,24 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertNotIn("on-demand-candidate-preflight", scheduled)
 
 
+    def test_offpeak_candidate_schedule_keeps_exact_schedule_only_gate(self):
+        original = (ROOT / ".github" / "workflows" / "update-watch.yml").read_text()
+        self.assertEqual(original.count('    - cron: "30 * * * *"'), 1)
+        self.assertEqual(original.count('    - cron: "41 * * * *"'), 1)
+        self.assertEqual(original.count("    - cron:"), 2)
+        self.assertIn("if: github.event_name == 'schedule'", original)
+        self.assertNotIn("workflow_dispatch:", original)
+        self.assertIn("needs: [authorize, watch_candidate]", original)
+        self.assertIn("dry_run: false", original)
+        self.assertIn(
+            "operator-update-auto.yml@cad131c1a767756fd8d8933d8a3c8530fd0ab9e3",
+            original)
+        self.assertIn("detector_sha: 16b886b9d06d6f389b369b87ce0c155767697ca0",
+                      original)
+        self.assertIn("candidate_attested_build:", original)
+        self.assertIn("candidate_signed_audit:", original)
+        self.assertNotIn("pull_request_target:", original)
+
     def test_version_independent_windows_pipeline(self):
         scripts = ROOT / "windows" / "ci"
         source = {name: (scripts / name).read_text(encoding="utf-8")
