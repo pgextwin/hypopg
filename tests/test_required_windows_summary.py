@@ -47,12 +47,14 @@ class WindowsSummaryTests(unittest.TestCase):
 
 
     def test_on_demand_probe_cannot_authorize_signed_schedule(self):
-        workflow = (ROOT / ".github" / "workflows" / "update-watch.yml").read_text()
-        self.assertIn('  workflow_dispatch:', workflow)
-        self.assertIn('      - ".github/workflows/update-watch.yml"', workflow)
-        self.assertIn('  on_demand_preflight:', workflow)
-        probe = workflow.split("  on_demand_preflight:", 1)[1].split(
-            "\n  authorize:", 1)[0]
+        scheduled = (ROOT / ".github" / "workflows" / "update-watch.yml").read_text()
+        probe = (ROOT / ".github" / "workflows" /
+                 "on-demand-candidate-preflight.yml").read_text()
+        self.assertIn("if: github.event_name == 'schedule'", scheduled)
+        self.assertNotIn("workflow_dispatch:", scheduled)
+        self.assertNotIn("on_demand_preflight:", scheduled)
+        self.assertIn("  workflow_dispatch:", probe)
+        self.assertIn('      - ".github/workflows/on-demand-candidate-preflight.yml"', probe)
         self.assertIn("github.event_name == 'workflow_dispatch'", probe)
         self.assertIn("github.event_name == 'push'", probe)
         self.assertIn("dry_run: true", probe)
@@ -60,17 +62,12 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("contents: read", probe)
         for prohibited in ("contents: write", "pull-requests: write",
                            "id-token: write", "dry_run: false",
-                           "publisher-candidate-intake.yml"):
+                           "publisher-candidate-intake.yml",
+                           "build-extension-attested.yml"):
             self.assertNotIn(prohibited, probe)
-        authorize = workflow.split("  authorize:", 1)[1].split(
-            "\n  watch_candidate:", 1)[0]
-        self.assertIn("if: github.event_name == 'schedule'", authorize)
-        self.assertNotIn("workflow_dispatch", authorize)
-        self.assertNotIn("needs: on_demand_preflight", workflow)
-        candidate = workflow.split("  candidate:", 1)[1].split(
-            "\n  candidate_native_pr_audit:", 1)[0]
-        self.assertIn("needs: [authorize, watch_candidate]", candidate)
-        self.assertIn("dry_run: false", candidate)
+        self.assertIn("needs: [authorize, watch_candidate]", scheduled)
+        self.assertIn("dry_run: false", scheduled)
+        self.assertNotIn("on-demand-candidate-preflight", scheduled)
 
 
 if __name__ == "__main__":
