@@ -86,7 +86,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("needs: [authorize, watch_candidate]", original)
         self.assertIn("dry_run: false", original)
         self.assertIn(
-            "operator-update-auto.yml@90755b0968520528c74e95a29207836806e543fa",
+            "operator-update-auto.yml@bf5ce09746f4ff6cf439ac1571a9c2646983fdcc",
             original)
         self.assertIn("detector_sha: 16b886b9d06d6f389b369b87ce0c155767697ca0",
                       original)
@@ -98,7 +98,7 @@ class WindowsSummaryTests(unittest.TestCase):
         path = ROOT / ".github" / "workflows" / "update-watch.yml"
         contents = path.read_text(encoding="utf-8")
         self.assertIn(
-            "verify-native-pr-candidate.yml@90755b0968520528c74e95a29207836806e543fa",
+            "verify-native-pr-candidate.yml@bf5ce09746f4ff6cf439ac1571a9c2646983fdcc",
             contents)
         self.assertNotIn(
             "verify-native-pr-candidate.yml@2b2903e463d28891b5688bf4546da99a299c3684",
@@ -112,7 +112,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("candidate_attested_build:", contents)
         self.assertIn("candidate_signed_audit:", contents)
         self.assertIn(
-            "operator-update-auto.yml@90755b0968520528c74e95a29207836806e543fa",
+            "operator-update-auto.yml@bf5ce09746f4ff6cf439ac1571a9c2646983fdcc",
             contents)
 
     def test_version_independent_windows_pipeline(self):
