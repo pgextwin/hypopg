@@ -3,9 +3,9 @@
   "name": "hypopg",
   "upstream": {
     "repository": "HypoPG/hypopg",
-    "ref": "1.4.4",
-    "version": "1.4.4",
-    "commit": "4e564ebbd46e1ab365ad0d05ca4a2f19cf316ba7"
+    "ref": "1.4.5",
+    "version": "1.4.5",
+    "commit": "9ab5c4fd3701b14ca3c996da360bba9fa5e9b970"
   },
   "postgresql": {
     "majors": [
