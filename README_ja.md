@@ -15,7 +15,7 @@
 1. 事前にバックアップを取り、[上流ドキュメント](https://github.com/HypoPG/hypopg)で必要な環境を確認します。
 2. 既存ファイルの入れ替え前にPostgreSQLを停止し、対応するZIPを展開します。
 3. ZIP内のlib/とshare/extension/のファイルを、PostgreSQLの同名ディレクトリへ配置してください。
-4. 利用するデータベースでCREATE EXTENSION hypopg;を実行します。 通常の仮想インデックス利用には共有ライブラリの事前ロードは必要ありません。 サーバー設定を変更した場合はPostgreSQLを再起動します。
+4. 利用するデータベースでCREATE EXTENSION hypopg;を実行します。 通常の仮想インデックス利用には共有ライブラリの事前ロードは必要ありません。 ファイルの配置と必要な設定を終えてから、PostgreSQLを起動します。
 
 ダウンロードしたZIPはReleaseのSHA256SUMS.txtで照合できます。ReleaseによってはSPDX形式のSBOM、脆弱性レポート、署名付き証明も提供されています。本番環境の前に検証環境で動作を確認してください。
 
