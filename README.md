@@ -1,11 +1,24 @@
-# HypoPG — Windows x64 binaries (pgextwin)
+# HypoPG — Windows x64
 
 [日本語](README_ja.md) | English
 
-This repository publishes unofficial Windows x64 binaries of upstream [HypoPG](https://github.com/HypoPG/hypopg) **1.4.3**, pinned to commit `21d5461ad1868434cc47d9aa656d7afc2b24c464`.
+This repository provides **unofficial Windows x64 packages** of [HypoPG](https://github.com/HypoPG/hypopg). HypoPG lets you evaluate hypothetical indexes without creating physical indexes.
 
-**Current published release:** [v1.4.3-windows.1](https://github.com/pgextwin/hypopg/releases/tag/v1.4.3-windows.1), for PostgreSQL **14–18**. Download the ZIP matching your PostgreSQL major; the [pgextwin Catalog](https://pgextwin.github.io/website/en/) lists checksums, SPDX SBOMs, Grype reports and build attestations. This release is an independently built community distribution, not an official upstream Windows release.
+## Downloads and compatibility
 
-The Windows CI verifies startup, `CREATE EXTENSION hypopg`, creation of a hypothetical index, the effect on an `EXPLAIN` plan without a physical index, and restoration after `hypopg_reset()`. Server-log assertions and extension upgrade paths are **not covered** by the current functional Test Contract. See the [pgextwin Catalog](https://pgextwin.github.io/website/en/) for the currently verified installation requirements and feature coverage.
+Download the [latest published Release](https://github.com/pgextwin/hypopg/releases/latest), or [view all Releases](https://github.com/pgextwin/hypopg/releases). Published packages for PostgreSQL **14–18** are listed in the [pgextwin catalog](https://pgextwin.github.io/website/en/).
 
-HypoPG does not need shared preload for normal hypothetical-index use. PostgreSQL 14 is eligible for new builds through its official EOL of **2026-11-12**; existing published ZIPs remain available as historical assets after EOL. Confirm Windows PostgreSQL installation and ABI compatibility before production use.
+Select the ZIP for **your PostgreSQL major version**. Do not mix files built for different majors. PostgreSQL 14 community support ends on November 12, 2026; historical downloads may remain available afterward.
+
+## Installation
+
+1. Back up your installation and check the [upstream documentation](https://github.com/HypoPG/hypopg) for prerequisites.
+2. Stop PostgreSQL before replacing installed files. Unpack the ZIP matching your PostgreSQL major.
+3. Copy the packaged lib/ and share/extension/ files to the matching directories in your PostgreSQL installation.
+4. Then create the extension in each database where it is needed using CREATE EXTENSION hypopg;. Normal hypothetical-index use does not require shared preloading. Restart PostgreSQL if you changed server configuration.
+
+Check the Release's SHA256SUMS.txt against the downloaded ZIP. Other available release materials can include SPDX SBOMs, vulnerability reports and signed attestations. Test in a non-production environment before deployment.
+
+## Upstream and license
+
+For usage, settings and limitations, refer to [HypoPG upstream](https://github.com/HypoPG/hypopg). This independent package is not an official upstream Windows distribution. The included license notices govern redistribution.
