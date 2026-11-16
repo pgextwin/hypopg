@@ -79,14 +79,14 @@ class WindowsSummaryTests(unittest.TestCase):
     def test_offpeak_candidate_schedule_keeps_exact_schedule_only_gate(self):
         original = (ROOT / ".github" / "workflows" / "update-watch.yml").read_text()
         self.assertEqual(original.count('    - cron: "30 * * * *"'), 1)
-        self.assertEqual(original.count('    - cron: "41 * * * *"'), 1)
-        self.assertEqual(original.count("    - cron:"), 2)
+        self.assertNotIn('    - cron: "41 * * * *"', original)
+        self.assertEqual(original.count("    - cron:"), 1)
         self.assertIn("if: github.event_name == 'schedule'", original)
         self.assertNotIn("workflow_dispatch:", original)
         self.assertIn("needs: [authorize, watch_candidate]", original)
         self.assertIn("dry_run: false", original)
         self.assertIn(
-            "operator-update-auto.yml@ecc2850520dd286ae92984abee41e89ecef44ae1",
+            "operator-update-auto.yml@73ab3248aa6e15fc150d86f1e118ca1cc036e020",
             original)
         # The three schedule-only callers must share the protected central SHA.
         for caller in ("check-extension-updates.yml", "candidate-update.yml"):
@@ -96,7 +96,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertNotIn(
             "operator-update-auto.yml@9ec4dde0b6defabc10cf3527c06cb69c13e5a7ff",
             original)
-        self.assertIn("detector_sha: ecc2850520dd286ae92984abee41e89ecef44ae1",
+        self.assertIn("detector_sha: 73ab3248aa6e15fc150d86f1e118ca1cc036e020",
                       original)
         self.assertIn("candidate_attested_build:", original)
         self.assertIn("candidate_signed_audit:", original)
@@ -120,7 +120,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("candidate_attested_build:", contents)
         self.assertIn("candidate_signed_audit:", contents)
         self.assertIn(
-            "operator-update-auto.yml@ecc2850520dd286ae92984abee41e89ecef44ae1",
+            "operator-update-auto.yml@73ab3248aa6e15fc150d86f1e118ca1cc036e020",
             contents)
 
     def test_version_independent_windows_pipeline(self):
