@@ -86,7 +86,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("needs: [authorize, watch_candidate]", original)
         self.assertIn("dry_run: false", original)
         self.assertIn(
-            "operator-update-auto.yml@d8904ebc377e33034b71108d42de940d6b6c9979",
+            "operator-update-auto.yml@ecc2850520dd286ae92984abee41e89ecef44ae1",
             original)
         # The three schedule-only callers must share the protected central SHA.
         for caller in ("check-extension-updates.yml", "candidate-update.yml"):
@@ -96,7 +96,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertNotIn(
             "operator-update-auto.yml@9ec4dde0b6defabc10cf3527c06cb69c13e5a7ff",
             original)
-        self.assertIn("detector_sha: 16b886b9d06d6f389b369b87ce0c155767697ca0",
+        self.assertIn("detector_sha: ecc2850520dd286ae92984abee41e89ecef44ae1",
                       original)
         self.assertIn("candidate_attested_build:", original)
         self.assertIn("candidate_signed_audit:", original)
@@ -120,7 +120,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("candidate_attested_build:", contents)
         self.assertIn("candidate_signed_audit:", contents)
         self.assertIn(
-            "operator-update-auto.yml@d8904ebc377e33034b71108d42de940d6b6c9979",
+            "operator-update-auto.yml@ecc2850520dd286ae92984abee41e89ecef44ae1",
             contents)
 
     def test_version_independent_windows_pipeline(self):
