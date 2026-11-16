@@ -78,7 +78,7 @@ class WindowsSummaryTests(unittest.TestCase):
 
     def test_offpeak_candidate_schedule_keeps_exact_schedule_only_gate(self):
         original = (ROOT / ".github" / "workflows" / "update-watch.yml").read_text()
-        self.assertEqual(original.count('    - cron: "30 * * * *"'), 1)
+        self.assertEqual(original.count('    - cron: "35 * * * *"'), 1)
         self.assertNotIn('    - cron: "41 * * * *"', original)
         self.assertEqual(original.count("    - cron:"), 1)
         self.assertIn("if: github.event_name == 'schedule'", original)
