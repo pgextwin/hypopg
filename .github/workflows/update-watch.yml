@@ -4,7 +4,7 @@ name: Upstream candidate after verified central daily fleet scan
 # Scheduled candidate creation only when central report and exact main match.
 on:
   schedule:
-    - cron: "30 * * * *"
+    - cron: "35 * * * *"
   push:
     branches: [main]
     paths:
