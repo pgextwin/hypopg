@@ -4,7 +4,7 @@ param([Parameter(Mandatory=$true)][string]$PgRoot,
       [Parameter(Mandatory=$true)][int]$PostgreSqlMajor)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-if ($PostgreSqlMajor -notin @(14,15,16,17,18)) { throw 'Only PG14-18 are allowed' }
+if ($PostgreSqlMajor -notin @(14,15,16,17,18,19)) { throw 'Only PG14-18 are allowed' }
 $config = Get-Content (Join-Path $PSScriptRoot '../../config/extension.json') -Raw | ConvertFrom-Json
 $expectedVersion = [string]$config.upstream.version
 if ($expectedVersion -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+$' -or
