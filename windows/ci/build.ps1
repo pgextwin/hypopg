@@ -10,7 +10,8 @@ if ($expected -cnotmatch '^[a-f0-9]{40}$' -or $config.upstream.repository -cne '
 $actual = (& git -C $UpstreamDir rev-parse HEAD).Trim().ToLowerInvariant()
 if ($LASTEXITCODE -ne 0 -or $actual -cne $expected) { throw "Upstream commit mismatch: $actual" }
 $pgVersion = (& (Join-Path $PgRoot 'bin/pg_config.exe') --version).Trim()
-if ($LASTEXITCODE -ne 0 -or $pgVersion -notmatch '^PostgreSQL\s+(14|15|16|17|18)(?:\.|\s)') { throw "Unsupported PostgreSQL version: $pgVersion" }
+if ($LASTEXITCODE -ne 0 -or $pgVersion -notmatch '^PostgreSQL\s+(14|15|16|17|18|19)(?:\.|\s)') { throw "Unsupported PostgreSQL version: $pgVersion" }
+$pgMajor = [int]$Matches[1]
 $expectedVersion = [string]$config.upstream.version
 if ($expectedVersion -cnotmatch '^[0-9]+\.[0-9]+\.[0-9]+$' -or
     [string]$config.upstream.ref -cne $expectedVersion) {
@@ -51,6 +52,7 @@ if (-not (Test-Path $vsdev)) { throw 'VsDevCmd.bat missing' }
 $commands = [System.Collections.Generic.List[string]]::new()
 $commands.Add('@echo off')
 $commands.Add('call "' + $vsdev + '" -arch=x64 -host_arch=x64')
+if ($pgMajor -ge 19) { $commands.Add('set "CL=/std:c11"') }
 $commands.Add('if errorlevel 1 exit /b %errorlevel%')
 $commands.Add('cd /d "' + $UpstreamDir + '"')
 $objects = [System.Collections.Generic.List[string]]::new()
