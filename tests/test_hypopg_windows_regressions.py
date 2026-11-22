@@ -1,51 +1,18 @@
 #!/usr/bin/env python3
-"""Test the exact stable aggregate check used by Windows CI, without Release."""
-import importlib.util
+"""hypopg-specific Windows regression tests kept with the extension.
+
+The shared required-windows summary cases live in pgextwin/build
+(tests/test-required-windows-summary.py) and run once in build's validate
+CI. These cases cover this extension's own hooks and workflows and keep
+running in this repo's Windows required summary job.
+"""
 from pathlib import Path
-import os
-import subprocess
-import sys
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location(
-    "summary", ROOT / "scripts" / "required_windows_summary.py")
-module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(module)
 
 
-class WindowsSummaryTests(unittest.TestCase):
-    def test_success_only(self):
-        self.assertTrue(module.verified_matrix_result("success"))
-        for value in ("failure", "cancelled", "skipped", "", "Success",
-                      "success ", True, 1, None):
-            with self.subTest(value=value):
-                self.assertFalse(module.verified_matrix_result(value))
-
-    def test_real_exit_status_allow_and_deny(self):
-        path = ROOT / "scripts" / "required_windows_summary.py"
-        for value, expected in (("success", 0), ("failure", 2),
-                                ("cancelled", 2), ("skipped", 2), ("", 2)):
-            env = dict(os.environ, WINDOWS_MATRIX_RESULT=value)
-            res = subprocess.run([sys.executable, str(path)], env=env,
-                                 capture_output=True, text=True)
-            with self.subTest(result=value):
-                self.assertEqual(res.returncode, expected)
-
-    def test_workflow_depends_on_complete_reusable_matrix_not_pg14_name(self):
-        contents = (ROOT / ".github" / "workflows" / "windows.yml").read_text()
-        self.assertIn("  windows_required:", contents)
-        summary = contents.split("  windows_required:", 1)[1].split(
-            "\n  candidate_report:", 1)[0]
-        self.assertIn("name: Windows required summary", summary)
-        self.assertIn("needs: windows", summary)
-        self.assertIn("always()", summary)
-        self.assertIn("needs.windows.result", summary)
-        self.assertIn("scripts/required_windows_summary.py", summary)
-        self.assertNotIn("PostgreSQL 14", summary)
-        self.assertNotIn("workflow_dispatch:", summary)
-
-
+class HypopgWindowsRegressionTests(unittest.TestCase):
     def test_on_demand_probe_cannot_authorize_signed_schedule(self):
         scheduled = (ROOT / ".github" / "workflows" / "update-watch.yml").read_text()
         probe = (ROOT / ".github" / "workflows" /
@@ -59,7 +26,7 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("github.event_name == 'push'", probe)
         self.assertNotIn("candidate-update.py propose", probe)
         self.assertNotIn("name: candidate-decision", probe)
-        self.assertIn("ref: df9847fa265c06c8f8602a72cfb0fcde52ee46df", probe)
+        self.assertIn("ref: 1905bb039bd80209ba219e316d6485249091c8b9", probe)
         self.assertIn("fleet-control.py", probe)
         self.assertIn("candidate-update.py plan", probe)
         self.assertIn("Reject central DENY", probe)
@@ -74,8 +41,6 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("needs: [authorize, watch_candidate]", scheduled)
         self.assertIn("dry_run: false", scheduled)
         self.assertNotIn("on-demand-candidate-preflight", scheduled)
-
-
     def test_offpeak_candidate_schedule_keeps_exact_schedule_only_gate(self):
         original = (ROOT / ".github" / "workflows" / "update-watch.yml").read_text()
         self.assertEqual(original.count('    - cron: "35 * * * *"'), 1)
@@ -88,11 +53,13 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn(
             "operator-update-auto.yml@7788623fa49e56b1301090bea4f023ea86405657",
             original)
-        # The three schedule-only callers must share the protected central SHA.
-        for caller in ("check-extension-updates.yml", "candidate-update.yml"):
-            self.assertIn(
-                f"{caller}@dbf7365ae702ddc19e094205f8343ec555125d9c",
-                original)
+        # The schedule-only callers use the protected central SHAs.
+        self.assertIn(
+            "check-extension-updates.yml@dbf7365ae702ddc19e094205f8343ec555125d9c",
+            original)
+        self.assertIn(
+            "candidate-update.yml@1905bb039bd80209ba219e316d6485249091c8b9",
+            original)
         self.assertNotIn(
             "operator-update-auto.yml@9ec4dde0b6defabc10cf3527c06cb69c13e5a7ff",
             original)
@@ -101,7 +68,6 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn("candidate_attested_build:", original)
         self.assertIn("candidate_signed_audit:", original)
         self.assertNotIn("pull_request_target:", original)
-
     def test_native_candidate_audit_pin_has_independent_exact_pr_join(self):
         path = ROOT / ".github" / "workflows" / "update-watch.yml"
         contents = path.read_text(encoding="utf-8")
@@ -122,7 +88,6 @@ class WindowsSummaryTests(unittest.TestCase):
         self.assertIn(
             "operator-update-auto.yml@7788623fa49e56b1301090bea4f023ea86405657",
             contents)
-
     def test_version_independent_windows_pipeline(self):
         scripts = ROOT / "windows" / "ci"
         source = {name: (scripts / name).read_text(encoding="utf-8")
@@ -143,7 +108,6 @@ class WindowsSummaryTests(unittest.TestCase):
                       source["smoke-test.ps1"])
         for name in ("build.ps1", "install.ps1", "smoke-test.ps1"):
             self.assertIn("'^[0-9]+\\.[0-9]+\\.[0-9]+$'", source[name])
-
 
 if __name__ == "__main__":
     unittest.main()
