@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: pgextwin/build
-          ref: df9847fa265c06c8f8602a72cfb0fcde52ee46df
+          ref: 1905bb039bd80209ba219e316d6485249091c8b9
           path: .pgextwin-build
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
@@ -45,7 +45,6 @@ jobs:
           --watch config/update-watch.json
           --repository "$GITHUB_REPOSITORY"
           --action candidate
-          --candidate-policy config/candidate-build.json
       - name: Reject central DENY or WATCH before any candidate planning
         env:
           ALLOWED: ${{ steps.fleet.outputs.allowed }}
@@ -59,7 +58,6 @@ jobs:
           python .pgextwin-build/scripts/candidate-update.py plan
           --extension config/extension.json
           --watch config/update-watch.json
-          --policy config/candidate-build.json
           --lifecycle .pgextwin-build/metadata/postgresql.json
           --output "$RUNNER_TEMP/on-demand-candidate-plan.json"
       - name: Upload observation only (never original scheduled decision)
