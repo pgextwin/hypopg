@@ -29,7 +29,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: pgextwin/build
-          ref: 1905bb039bd80209ba219e316d6485249091c8b9
+          ref: 3e5300afa99b99ea8c11be2a6ef75c994d708c28
           path: .pgextwin-build
           persist-credentials: false
       - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
