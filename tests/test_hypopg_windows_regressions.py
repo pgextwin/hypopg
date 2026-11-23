@@ -26,7 +26,7 @@ class HypopgWindowsRegressionTests(unittest.TestCase):
         self.assertIn("github.event_name == 'push'", probe)
         self.assertNotIn("candidate-update.py propose", probe)
         self.assertNotIn("name: candidate-decision", probe)
-        self.assertIn("ref: 1905bb039bd80209ba219e316d6485249091c8b9", probe)
+        self.assertIn("ref: 3e5300afa99b99ea8c11be2a6ef75c994d708c28", probe)
         self.assertIn("fleet-control.py", probe)
         self.assertIn("candidate-update.py plan", probe)
         self.assertIn("Reject central DENY", probe)
@@ -51,19 +51,19 @@ class HypopgWindowsRegressionTests(unittest.TestCase):
         self.assertIn("needs: [authorize, watch_candidate]", original)
         self.assertIn("dry_run: false", original)
         self.assertIn(
-            "operator-update-auto.yml@7788623fa49e56b1301090bea4f023ea86405657",
+            "operator-update-auto.yml@3e5300afa99b99ea8c11be2a6ef75c994d708c28",
             original)
         # The schedule-only callers use the protected central SHAs.
         self.assertIn(
-            "check-extension-updates.yml@dbf7365ae702ddc19e094205f8343ec555125d9c",
+            "check-extension-updates.yml@3e5300afa99b99ea8c11be2a6ef75c994d708c28",
             original)
         self.assertIn(
-            "candidate-update.yml@1905bb039bd80209ba219e316d6485249091c8b9",
+            "candidate-update.yml@3e5300afa99b99ea8c11be2a6ef75c994d708c28",
             original)
         self.assertNotIn(
             "operator-update-auto.yml@9ec4dde0b6defabc10cf3527c06cb69c13e5a7ff",
             original)
-        self.assertIn("detector_sha: 7788623fa49e56b1301090bea4f023ea86405657",
+        self.assertIn("detector_sha: 3e5300afa99b99ea8c11be2a6ef75c994d708c28",
                       original)
         self.assertIn("candidate_attested_build:", original)
         self.assertIn("candidate_signed_audit:", original)
@@ -86,7 +86,7 @@ class HypopgWindowsRegressionTests(unittest.TestCase):
         self.assertIn("candidate_attested_build:", contents)
         self.assertIn("candidate_signed_audit:", contents)
         self.assertIn(
-            "operator-update-auto.yml@7788623fa49e56b1301090bea4f023ea86405657",
+            "operator-update-auto.yml@3e5300afa99b99ea8c11be2a6ef75c994d708c28",
             contents)
     def test_version_independent_windows_pipeline(self):
         scripts = ROOT / "windows" / "ci"
