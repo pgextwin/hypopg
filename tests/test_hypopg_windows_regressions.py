@@ -6,6 +6,7 @@ The shared required-windows summary cases live in pgextwin/build
 CI. These cases cover this extension's own hooks and workflows and keep
 running in this repo's Windows required summary job.
 """
+import json
 from pathlib import Path
 import unittest
 
@@ -91,23 +92,37 @@ class HypopgWindowsRegressionTests(unittest.TestCase):
     def test_version_independent_windows_pipeline(self):
         scripts = ROOT / "windows" / "ci"
         source = {name: (scripts / name).read_text(encoding="utf-8")
-                  for name in ("build.ps1", "install.ps1",
-                               "package.ps1", "smoke-test.ps1")}
+                  for name in ("build.ps1", "smoke-test.ps1")}
         for name, body in source.items():
             with self.subTest(file=name):
                 self.assertNotIn("1.4.3", body)
                 self.assertIn("config/extension.json", body)
                 self.assertIn("upstream.version", body)
+                self.assertIn("'^[0-9]+\\.[0-9]+\\.[0-9]+$'", body)
         self.assertIn("upstream.commit", source["build.ps1"])
         self.assertIn("[regex]::Escape($expectedVersion)", source["build.ps1"])
-        self.assertIn("[regex]::Escape($expectedVersion)", source["install.ps1"])
-        self.assertIn("[regex]::Escape($UpstreamVersion)", source["package.ps1"])
-        self.assertIn('hypopg--$expectedVersion.sql', source["install.ps1"])
-        self.assertIn('hypopg--$UpstreamVersion.sql', source["package.ps1"])
         self.assertIn("sqlBody.Replace('@@EXPECTED_HYPOPG_VERSION@@', $expectedVersion)",
                       source["smoke-test.ps1"])
-        for name in ("build.ps1", "install.ps1", "smoke-test.ps1"):
-            self.assertIn("'^[0-9]+\\.[0-9]+\\.[0-9]+$'", source[name])
+
+        placement = (scripts / "package.json").read_text(encoding="utf-8")
+        self.assertNotIn("1.4.3", placement)
+        package = json.loads(placement)
+        self.assertEqual(package["distribution"], "dll-sql")
+        self.assertNotIn("sqlInstallPath", package)  # Require direct SQL for the resolved version.
+        install = {row["path"]: row for row in package["files"] if "install" in row["targets"]}
+        expected = {
+            "hypopg.dll": "lib/hypopg.dll",
+            "hypopg.control": "share/extension/hypopg.control",
+            "hypopg--*.sql": "share/extension/{fileName}",
+        }
+        self.assertEqual(install.keys(), expected.keys())
+        for path, destination in expected.items():
+            with self.subTest(path=path):
+                self.assertEqual(install[path]["source"], "upstream")
+                self.assertEqual(install[path]["destination"], destination)
+                self.assertCountEqual(install[path]["targets"], ["install", "zip"])
+        self.assertGreater(install["hypopg--*.sql"]["expectedCount"], 0)
+        self.assertIn("Version: {version}", package["packageInfo"])
 
 if __name__ == "__main__":
     unittest.main()
