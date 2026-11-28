@@ -73,7 +73,7 @@ class HypopgWindowsRegressionTests(unittest.TestCase):
         path = ROOT / ".github" / "workflows" / "update-watch.yml"
         contents = path.read_text(encoding="utf-8")
         self.assertIn(
-            "verify-native-pr-candidate.yml@9ec4dde0b6defabc10cf3527c06cb69c13e5a7ff",
+            "verify-native-pr-candidate.yml@2cdc97df7cd5cb7d21993f165bafc4f111bfedc4",
             contents)
         self.assertNotIn(
             "verify-native-pr-candidate.yml@2b2903e463d28891b5688bf4546da99a299c3684",
